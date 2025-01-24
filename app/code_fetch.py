@@ -27,6 +27,21 @@ def fetch_codes(game='genshin'):
     
     return data['codes']
 
-genshin_codes = fetch_codes()
-hsr_codes = fetch_codes('hkrpg')
-zzz_codes = fetch_codes('nap')
+def format_codes(codes):
+    for item in codes:
+        print(item['code'], ' - ', item['rewards'])
+
+if __name__ == '__main__':
+    
+    genshin_codes = fetch_codes()
+    hsr_codes = fetch_codes('hkrpg')
+    zzz_codes = fetch_codes('nap')
+
+    print('\ngenshin')
+    print(format_codes(genshin_codes))
+
+    print('\nhsr')
+    print(format_codes(hsr_codes))
+
+    print('\nzzz')
+    print(format_codes(zzz_codes))

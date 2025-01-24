@@ -10,5 +10,6 @@ python `3.11.2` and above. will be used to my own debian 12 instance
 ## usage
 
 ```
+pip install -r requirements.txt
 python main.py
 ```
