@@ -1,5 +1,6 @@
 from app.code_fetch     import fetch_codes
 from app.code_database  import get_saved_codes, update_saved_codes
+from app.send_webhook   import send_new_codes, send_expired_codes
 
 codes = [
     (i['code'], i['rewards']) for i in fetch_codes('genshin')
@@ -24,14 +25,17 @@ def compare_codes(fetched, saved):
         'expired'   : expired,
     }
 
-# print(compare_codes(codes, db_codes))
 
 code_status_group = compare_codes(codes, db_codes)
-
-print(code_status_group)
-
 active = code_status_group['active'] + code_status_group['new']
 
-print(active)
-
 update_saved_codes(active)
+
+new_codes = []
+for item in codes:
+    _c = item[0]
+    if _c in code_status_group['new']:
+        new_codes.append(item)
+
+send_new_codes(new_codes)
+send_expired_codes(code_status_group['expired'])
