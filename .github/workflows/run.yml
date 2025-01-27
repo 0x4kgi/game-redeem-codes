@@ -1,0 +1,32 @@
+name: Run Python Script
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest
+
+    env:
+      KEY: ${{ secrets.KEY }}
+      HOOK: ${{ secrets.HOOK }}
+      PING: ${{ secrets.PING }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.11.2
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11.2
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run main.py
+      run: python main.py

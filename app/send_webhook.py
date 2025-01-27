@@ -1,4 +1,5 @@
 import os, requests
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -99,13 +100,22 @@ def send_webhook(
 def send_new_codes(codes):
     if len(codes) < 1:
         return
+    
+    ping_id = os.getenv('PING_ROLE_ID')
 
     embed = embed_maker(
         title='New codes!',
-        fields=codes
+        fields=codes,
+        color=16448000,
+        timestamp=get_current_timestamp(),
+        thumbnail='https://static.wikia.nocookie.net/gensin-impact/images/5/55/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_2.png/revision/latest?cb=20240303140740',
     )
 
-    send_webhook(embeds=[embed])
+    send_webhook(
+        embeds=[embed],
+        username='New!',
+        content=f'Hey <@&{ping_id}>!',
+    )
 
 
 def send_expired_codes(codes):
@@ -115,11 +125,13 @@ def send_expired_codes(codes):
     expired_list = '\n'.join(codes)
 
     embed = embed_maker(
-        title='Expired codes:',
+        title='Expired codes',
         description=f'The following have expired: \n```\n{expired_list}```',
+        timestamp=get_current_timestamp(),
+        thumbnail='https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Icon_Emoji_Paimon%27s_Paintings_02_Qiqi_1.png/revision/latest/scale-to-width-down/1000?cb=20240303114539',
     )
 
-    send_webhook(embeds=[embed])
+    send_webhook(embeds=[embed],username='Expired')
 
 
 def send_active_codes(codes):
@@ -127,6 +139,10 @@ def send_active_codes(codes):
         return
 
     pass
+
+
+def get_current_timestamp():
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 
 if __name__ == '__main__':
