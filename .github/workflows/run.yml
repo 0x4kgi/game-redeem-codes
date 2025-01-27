@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      KEY: ${{ secrets.KEY }}
-      HOOK: ${{ secrets.HOOK }}
-      PING: ${{ secrets.PING }}
+      PANTRY_KEY: ${{ secrets.PANTRY_KEY }}
+      WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      PING_ROLE_ID: ${{ secrets.PING_ROLE_ID }}
 
     steps:
     - name: Checkout code
