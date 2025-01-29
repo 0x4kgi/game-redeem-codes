@@ -23,6 +23,7 @@ def basket_request(method='GET', payload=''):
 
 
 def get_basket(key=None):
+    print(f'Fetching pantry basket...\nKey: ' + key)
     response = basket_request('GET')
     data = json.loads(response.text)
 
@@ -36,6 +37,7 @@ def get_basket(key=None):
 
 
 def get_saved_codes():
+    print('Getting saved codes...')
     return get_basket('codes')
 
 
@@ -45,6 +47,7 @@ def update_basket(data):
 
 
 def update_saved_codes(codes):
+    print('Updating saved codes to pantry...')
     update_basket({
         'codes': codes
     })

@@ -7,6 +7,7 @@ VALID_GAMES = [
 ]
 
 def fetch_codes(game='genshin'):
+    print('Fetching saved codes for ' + game)
     if game not in VALID_GAMES:
         raise Exception(f'Game "{game}" is not valid. Must be one of the following: ' + ', '.join(VALID_GAMES))
     

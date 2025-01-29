@@ -99,6 +99,7 @@ def send_webhook(
 
 def send_new_codes(codes):
     if len(codes) < 1:
+        print('No new codes. Sending nothing.')
         return
     
     ping_id = os.getenv('PING_ROLE_ID')
@@ -120,6 +121,7 @@ def send_new_codes(codes):
 
 def send_expired_codes(codes):
     if len(codes) < 1:
+        print('No expired codes. Sending nothing.')
         return
 
     expired_list = '\n'.join(codes)

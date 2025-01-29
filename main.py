@@ -5,12 +5,6 @@ from app.send_webhook   import send_new_codes, send_expired_codes
 
 import sys
 
-codes = [
-    (i['code'], i['rewards']) for i in fetch_codes('genshin')
-]
-
-db_codes = get_saved_codes()
-
 
 def compare_codes(fetched, saved):
     fetched_just_codes = [i[0] for i in fetched]
@@ -34,16 +28,17 @@ def process_codes(codes):
     
     active = code_status_group['active'] + code_status_group['new']
 
-    update_saved_codes(active)
-
     new_codes = []
     for item in codes['live']:
         _c = item[0]
         if _c in code_status_group['new']:
             new_codes.append(item)
 
-    send_new_codes(new_codes)
-    send_expired_codes(code_status_group['expired'])
+    return {
+        'new': new_codes,
+        'active': active,
+        'expired': code_status_group['expired'],
+    }
 
 
 def grab_live_codes(game='genshin'):
@@ -63,9 +58,11 @@ def grab_live_codes(game='genshin'):
 if __name__ == '__main__':
     # for testing, append anything to the script
     # it will automatically be on "test mode"
-    args = sys.argv
+    test_mode = len(sys.argv) > 1
     
-    if len(args) > 1:
+    # dummy or live data
+    if test_mode:
+        print('Test mode! Dummy data below:')
         codes = {
             'live': [
                 ('c1', 'first code'),
@@ -85,5 +82,25 @@ if __name__ == '__main__':
     else:
         codes = grab_live_codes('genshin')
     
+    # main "process"
     print(json.dumps(codes, indent=2))
-    process_codes(codes)
+    processed_codes = process_codes(codes)
+
+    # end of function, print or save
+    if test_mode:
+        print('Test done! The following are the processed data:')
+        print(json.dumps(processed_codes, indent=2))
+
+        status_map = {
+            'active': 'saved to db',
+            'new': 'sent as new webhook',
+            'expired': 'sent as expired webhook',
+        }
+
+        for status, message in status_map.items():
+            print(f'\n{message}')
+            print(json.dumps(processed_codes[status], indent=2))
+    else:
+        update_saved_codes(processed_codes['active'])
+        send_new_codes(processed_codes['new'])
+        send_expired_codes(processed_codes['expired'])
