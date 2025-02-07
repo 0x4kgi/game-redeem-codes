@@ -1,4 +1,4 @@
-
+import scraper.web_fetch as web_fetch
 import requests 
 
 HOYO_GAMES = [
@@ -6,6 +6,7 @@ HOYO_GAMES = [
 ]
 
 def fetch_codes(game='genshin') -> list[dict[str, str]]:
+    print('Attempting to fetch for ' + game)
     if game in HOYO_GAMES:
         return seria_fetch(game)
     elif game in ['wuwa']:
@@ -43,30 +44,30 @@ def wuwa_fetch() -> list[dict[str, str]]:
 
     code_sources = [
         'https://www.pockettactics.com/wuthering-waves/codes',
-        'https://antifandom.com/wutheringwaves/wiki/Redemption_Code',
         
+        #'https://antifandom.com/wutheringwaves/wiki/Redemption_Code',        
         # lists different ones, for some reason?
-        'https://wuthering.gg/codes',
+        #'https://wuthering.gg/codes',
     ]
     
-    return [
-        {
-            'code': 'TEST',
-            'rewards': 'something'
-        }
-    ]
+    codes = []
+    
+    for source in code_sources:
+        codes += web_fetch.extract_codes(source)
+    
+    return codes
 
 
 def format_codes(codes) -> None:
+    # print('Formatting...')
     for item in codes:
-        print(item)
+        # print(item)
         print(item['code'], ' - ', item['rewards'])
 
 
-if __name__ == '__main__':
-    
+if __name__ == '__main__':    
     items = [
-        ('genshin', fetch_codes()),
+        ('genshin', fetch_codes('genshin')),
         ('hsr', fetch_codes('hkrpg')),
         ('zzz', fetch_codes('nap')),
         ('wuwa', fetch_codes('wuwa')),
@@ -74,4 +75,5 @@ if __name__ == '__main__':
 
     for item in items:
         print(f'\n{item[0]}')
+        # print(item[1])
         print(format_codes(item[1]))
