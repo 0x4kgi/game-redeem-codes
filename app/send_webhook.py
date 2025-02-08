@@ -4,6 +4,51 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+def full_game_name(game: str) -> str:
+    game_tag = {
+        'genshin': 'Genshin Impact',
+        'hkrpg': 'Honkai: Star Rail',
+        'honkai3rd': 'Honkai Impact 3rd',
+        'nap': 'Zenless Zone Zero',
+        'tot': 'Tears of Themis',
+        'wuwa': 'Wuthering Waves',
+    }
+    return game_tag.get(game, 'Other')
+
+
+def webhook_username(game:str, type:str) -> str:
+    username_fragment = {
+        'new': 'New Codes',
+        'active': 'Current Active Codes',
+        'expired': 'Expired Codes',
+    }
+
+    selected_fragment = username_fragment.get(type, 'Unknown')
+    selected_game_tag = full_game_name(game)
+
+    return f'[{selected_game_tag}] {selected_fragment}'
+
+
+def webhook_avatar(game:str, type:str) -> str:
+    pass
+
+
+def webhook_thumbnail(game:str, type:str) -> str:
+    thumb = {
+        'genshin': {
+            'new': 'https://static.wikia.nocookie.net/gensin-impact/images/5/55/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_2.png/revision/latest?cb=20240303140740',
+            'expired': 'https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Icon_Emoji_Paimon%27s_Paintings_02_Qiqi_1.png/revision/latest/scale-to-width-down/1000?cb=20240303114539',
+        }
+    }
+
+    selected_game = thumb.get(game, None)
+
+    if selected_game is None:
+        return None
+
+    return selected_game.get(type, None)
+
+
 def embed_maker(
         title: str = None,
         description: str = None,
@@ -97,7 +142,7 @@ def send_webhook(
         print(f'Failed to send webhook. Status code: {response.status_code}')
 
 
-def send_new_codes(codes):
+def send_new_codes(codes, game):
     if len(codes) < 1:
         print('No new codes. Sending nothing.')
         return
@@ -106,20 +151,21 @@ def send_new_codes(codes):
 
     embed = embed_maker(
         title='New codes!',
+        author=full_game_name(game),
         fields=codes,
         color=16448000,
         timestamp=get_current_timestamp(),
-        thumbnail='https://static.wikia.nocookie.net/gensin-impact/images/5/55/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_2.png/revision/latest?cb=20240303140740',
+        thumbnail=webhook_thumbnail(game, 'new'),
     )
 
     send_webhook(
         embeds=[embed],
-        username='New!',
+        username=webhook_username(game, 'new'),
         content=f'Hey <@&{ping_id}>!',
     )
 
 
-def send_expired_codes(codes):
+def send_expired_codes(codes, game):
     if len(codes) < 1:
         print('No expired codes. Sending nothing.')
         return
@@ -128,12 +174,16 @@ def send_expired_codes(codes):
 
     embed = embed_maker(
         title='Expired codes',
+        author=full_game_name(game),
         description=f'The following have expired: \n```\n{expired_list}```',
         timestamp=get_current_timestamp(),
-        thumbnail='https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Icon_Emoji_Paimon%27s_Paintings_02_Qiqi_1.png/revision/latest/scale-to-width-down/1000?cb=20240303114539',
+        thumbnail=webhook_thumbnail(game, 'expired'),
     )
 
-    send_webhook(embeds=[embed],username='Expired')
+    send_webhook(
+        embeds=[embed],
+        username=webhook_username(game,'expired')
+    )
 
 
 def send_active_codes(codes):

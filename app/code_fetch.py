@@ -1,4 +1,4 @@
-import scraper.web_fetch as web_fetch
+from .scraper import web_fetch
 import requests 
 
 HOYO_GAMES = [
@@ -65,7 +65,7 @@ def format_codes(codes) -> None:
         print(item['code'], ' - ', item['rewards'])
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     items = [
         ('genshin', fetch_codes('genshin')),
         ('hsr', fetch_codes('hkrpg')),

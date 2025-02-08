@@ -1,9 +1,8 @@
 import json
+import sys
 from app.code_fetch     import fetch_codes
 from app.code_database  import get_saved_codes, update_saved_codes
 from app.send_webhook   import send_new_codes, send_expired_codes
-
-import sys
 
 
 def compare_codes(fetched, saved):
@@ -47,7 +46,11 @@ def grab_live_codes(game='genshin'):
             for i in fetch_codes(game)
     ]
 
-    db_codes = get_saved_codes()
+    db_codes = get_saved_codes(game)
+
+    # if not None does not work, idk why
+    if not db_codes:
+        db_codes = []
     
     return {
         'live': codes,
@@ -55,32 +58,10 @@ def grab_live_codes(game='genshin'):
     }
 
 
-if __name__ == '__main__':
-    # for testing, append anything to the script
-    # it will automatically be on "test mode"
-    test_mode = len(sys.argv) > 1
+def main(game, test_mode):
+    print(f'[{game}] Running main process')
     
-    # dummy or live data
-    if test_mode:
-        print('Test mode! Dummy data below:')
-        codes = {
-            'live': [
-                ('c1', 'first code'),
-                ('c2', 'second code'),
-                ('c3', 'third code'),
-                ('new', 'this is new'),
-                ('new2', 'so this one!'),
-                ('new3', 'me three!!'),
-            ],
-            'saved': [
-                'c1','c2','c3',
-                'expired',
-                'another expired',
-                'something else expired'
-            ],
-        }
-    else:
-        codes = grab_live_codes('genshin')
+    codes = grab_live_codes(game)
     
     # main "process"
     print(json.dumps(codes, indent=2))
@@ -88,19 +69,36 @@ if __name__ == '__main__':
 
     # end of function, print or save
     if test_mode:
-        print('Test done! The following are the processed data:')
+        print(f'[{game}] Test done! The following are the processed data:')
         print(json.dumps(processed_codes, indent=2))
 
         status_map = {
-            'active': 'saved to db',
-            'new': 'sent as new webhook',
-            'expired': 'sent as expired webhook',
+            'active': f'[{game}] saved to db',
+            'new': f'[{game}] sent as new webhook',
+            'expired': f'[{game}] sent as expired webhook',
         }
 
         for status, message in status_map.items():
             print(f'\n{message}')
             print(json.dumps(processed_codes[status], indent=2))
     else:
-        update_saved_codes(processed_codes['active'])
-        send_new_codes(processed_codes['new'])
-        send_expired_codes(processed_codes['expired'])
+        print(f'[{game}] Processing done! Attempting to save and send webhooks.')
+
+        update_saved_codes(
+            codes=processed_codes['active'], game=game
+        )
+        send_new_codes(
+            codes=processed_codes['new'], game=game
+        )
+        send_expired_codes(
+            codes=processed_codes['expired'], game=game
+        )
+
+
+if __name__ == '__main__':
+    # for testing, append anything to the script
+    # it will automatically be on "test mode"
+    test_mode = len(sys.argv) > 1
+
+    main('genshin', test_mode)
+    main('wuwa', test_mode)
