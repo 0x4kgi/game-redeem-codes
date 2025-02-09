@@ -29,8 +29,16 @@ def webhook_username(game:str, type:str) -> str:
     return f'[{selected_game_tag}] {selected_fragment}'
 
 
-def webhook_avatar(game:str, type:str) -> str:
-    pass
+def webhook_avatar(game:str) -> str:
+    icon = {
+        'genshin': 'https://play-lh.googleusercontent.com/iP2i_f23Z6I-5hoL2okPS4SxOGhj0q61Iyb0Y1m4xdTsbnaCmrjs7xKRnL6o5R4h-Yg=w240-h480-rw',
+        'wuwa': 'https://play-lh.googleusercontent.com/ameFGPYH-qhOSxdsSA_fA54I4Ch-eO8y7Pj4x6W6ejQkvKbhVjCehKlPerBY9X2L8ek=w240-h480-rw',
+        'hkrpg': 'https://play-lh.googleusercontent.com/cM6aszB0SawZNoAIPvtvy4xsfeFi5iXVBhZB57o-EGPWqE4pbyIUlKJzmdkH8hytuuQ',
+        'nap': 'https://play-lh.googleusercontent.com/DEkjrvPufl6TG4Gxq4m8goCSLYiE1bLNOTnlKrJbHDOAWZT40qG3oyALMZJ2BPHJoe8',
+        'honkai3rd': 'https://play-lh.googleusercontent.com/ci8QYc-jBQ_NC4dua2EQCGrcHtHFUnlfWctGMTnyTA4-Zu0gm6dJy382xxHp_TFhYg=w240-h480-rw',
+    }
+    
+    return icon.get(game, None)
 
 
 def webhook_thumbnail(game:str, type:str) -> str:
@@ -38,6 +46,10 @@ def webhook_thumbnail(game:str, type:str) -> str:
         'genshin': {
             'new': 'https://static.wikia.nocookie.net/gensin-impact/images/5/55/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_2.png/revision/latest?cb=20240303140740',
             'expired': 'https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Icon_Emoji_Paimon%27s_Paintings_02_Qiqi_1.png/revision/latest/scale-to-width-down/1000?cb=20240303114539',
+        },
+        'wuwa' : {
+            'new': 'https://wutheringlab.com/wp-content/uploads/T_ChatEmo_E_03.png',
+            'expired': 'https://wutheringlab.com/wp-content/uploads/T_ChatEmo_D_03.png',
         }
     }
 
@@ -161,6 +173,7 @@ def send_new_codes(codes, game):
     send_webhook(
         embeds=[embed],
         username=webhook_username(game, 'new'),
+        avatar_url=webhook_avatar(game),
         content=f'Hey <@&{ping_id}>!',
     )
 
@@ -182,7 +195,8 @@ def send_expired_codes(codes, game):
 
     send_webhook(
         embeds=[embed],
-        username=webhook_username(game,'expired')
+        username=webhook_username(game,'expired'),
+        avatar_url=webhook_avatar(game),
     )
 
 
