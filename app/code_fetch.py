@@ -1,16 +1,27 @@
+# see if __name__ block at the end of this script
+# from .scraper import web_fetch
+import requests
 
-import requests 
-
-BASE_URL = 'https://hoyo-codes.seria.moe/codes?game='
-VALID_GAMES = [
+HOYO_GAMES = [
     'genshin', 'hkrpg', 'honkai3rd', 'nap', 'tot'
 ]
 
-def fetch_codes(game='genshin'):
-    print('Fetching saved codes for ' + game)
-    if game not in VALID_GAMES:
-        raise Exception(f'Game "{game}" is not valid. Must be one of the following: ' + ', '.join(VALID_GAMES))
+def fetch_codes(game='genshin') -> list[dict[str, str]]:
+    print('Attempting to fetch for ' + game)
+    if game in HOYO_GAMES:
+        return seria_fetch(game)
+    elif game in ['wuwa']:
+        return wuwa_fetch()
+    else:
+        raise Exception(f'Unknown game: {game}')
+
+
+def seria_fetch(game='genshin') -> list[dict[str, str]]:
+    print('Fetching from hoyo-codes.seria.moe/codes?game=' + game)
+    if game not in HOYO_GAMES:
+        raise Exception(f'Game "{game}" is not valid. Must be one of the following: ' + ', '.join(HOYO_GAMES))
     
+    BASE_URL = 'https://hoyo-codes.seria.moe/codes?game='
     response = requests.get(BASE_URL + game)
     
     data = response.json()
@@ -28,21 +39,52 @@ def fetch_codes(game='genshin'):
     
     return data['codes']
 
-def format_codes(codes):
+
+def wuwa_fetch() -> list[dict[str, str]]:
+    print('Finding codes for wuwa...')
+
+    code_sources = [
+        'https://www.pockettactics.com/wuthering-waves/codes',
+        
+        #'https://antifandom.com/wutheringwaves/wiki/Redemption_Code',        
+        # lists different ones, for some reason?
+        #'https://wuthering.gg/codes',
+    ]
+    
+    codes = []
+    
+    for source in code_sources:
+        codes += web_fetch.extract_codes(source)
+    
+    return codes
+
+
+def format_codes(codes) -> None:
+    # print('Formatting...')
     for item in codes:
+        # print(item)
         print(item['code'], ' - ', item['rewards'])
 
+
 if __name__ == '__main__':
+    from scraper import web_fetch
     
-    genshin_codes = fetch_codes()
-    hsr_codes = fetch_codes('hkrpg')
-    zzz_codes = fetch_codes('nap')
+    items = [
+        ('genshin', fetch_codes('genshin')),
+        ('hsr', fetch_codes('hkrpg')),
+        ('zzz', fetch_codes('nap')),
+        ('wuwa', fetch_codes('wuwa')),
+    ]
 
-    print('\ngenshin')
-    print(format_codes(genshin_codes))
-
-    print('\nhsr')
-    print(format_codes(hsr_codes))
-
-    print('\nzzz')
-    print(format_codes(zzz_codes))
+    for item in items:
+        print(f'\n{item[0]}')
+        # print(item[1])
+        print(format_codes(item[1]))
+else:
+    """
+    ok so this is weird as fuck
+    running this script directly throws a ModuleNotFound error
+    because of "from .scraper", but this script being imported doesn't
+    and i dont know why.
+    """
+    from .scraper import web_fetch

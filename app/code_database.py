@@ -6,11 +6,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PANTRY_KEY = os.getenv('PANTRY_KEY')
-BASKET_URL = f'https://getpantry.cloud/apiv1/pantry/{PANTRY_KEY}/basket/codes'
 
 # this is a bad idea but i kinda dont care since we are only using one
 # pantry anyway
-def basket_request(method='GET', payload=''):
+def basket_request(method='GET', payload='', basket=None):
+    # basket names will always have "codes-" prefix
+    # "codes" is the legacy basket
+    BASKET_URL = f'https://getpantry.cloud/apiv1/pantry/{PANTRY_KEY}/basket/codes'
+
+    if basket is not None:
+        BASKET_URL += '-' + basket
+
     headers = {
         'Content-Type': 'application/json'
     }
@@ -22,9 +28,14 @@ def basket_request(method='GET', payload=''):
     )
 
 
-def get_basket(key=None):
-    print(f'Fetching pantry basket...\nKey: ' + key)
-    response = basket_request('GET')
+def get_basket(key=None, basket=None):
+    print(f'[{basket} : {key}] Fetching pantry basket...')
+    response = basket_request(method='GET', basket=basket)
+    
+    if not response:
+        print('Empty basket: ' + basket)
+        return None
+    
     data = json.loads(response.text)
 
     if key is None:
@@ -36,29 +47,31 @@ def get_basket(key=None):
         return None
 
 
-def get_saved_codes():
-    print('Getting saved codes...')
-    return get_basket('codes')
+def get_saved_codes(game=None):
+    print(f'[{game}] Getting saved codes...')
+    return get_basket(key='codes', basket=game)
 
 
-def update_basket(data):
+def update_basket(data, basket=None):
     payload = json.dumps(data)
-    basket_request('POST', payload)
+    basket_request(method='POST', payload=payload, basket=basket)
 
 
-def update_saved_codes(codes):
-    print('Updating saved codes to pantry...')
-    update_basket({
+def update_saved_codes(codes, game=None):
+    print(f'[{game}] Updating saved codes to pantry...')
+    update_basket(
+        data={
         'codes': codes
-    })
+        }, basket=game
+    )
 
 
 if __name__ == '__main__':
     print('running as main')
 
-    print(get_basket('ayaya'))
+    print(get_basket(key='ayaya', game='some-game'))
 
     stuff = {'stuff': 'lmao'}
-    update_basket(stuff)
+    update_basket(data=stuff, game='some-game')
 
-    print(get_basket())
+    print(get_basket(game='some-game'))
