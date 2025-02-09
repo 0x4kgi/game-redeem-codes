@@ -52,9 +52,9 @@ def get_saved_codes(game=None):
     return get_basket(key='codes', basket=game)
 
 
-def update_basket(data, game=None):
+def update_basket(data, basket=None):
     payload = json.dumps(data)
-    basket_request(method='POST', payload=payload, basket=game)
+    basket_request(method='POST', payload=payload, basket=basket)
 
 
 def update_saved_codes(codes, game=None):

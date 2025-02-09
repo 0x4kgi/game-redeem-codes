@@ -1,5 +1,6 @@
-from .scraper import web_fetch
-import requests 
+# see if __name__ block at the end of this script
+# from .scraper import web_fetch
+import requests
 
 HOYO_GAMES = [
     'genshin', 'hkrpg', 'honkai3rd', 'nap', 'tot'
@@ -66,6 +67,8 @@ def format_codes(codes) -> None:
 
 
 if __name__ == '__main__':
+    from scraper import web_fetch
+    
     items = [
         ('genshin', fetch_codes('genshin')),
         ('hsr', fetch_codes('hkrpg')),
@@ -77,3 +80,11 @@ if __name__ == '__main__':
         print(f'\n{item[0]}')
         # print(item[1])
         print(format_codes(item[1]))
+else:
+    """
+    ok so this is weird as fuck
+    running this script directly throws a ModuleNotFound error
+    because of "from .scraper", but this script being imported doesn't
+    and i dont know why.
+    """
+    from .scraper import web_fetch
