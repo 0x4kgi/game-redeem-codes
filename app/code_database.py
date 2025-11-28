@@ -33,7 +33,7 @@ def get_basket(key=None, basket=None):
     response = basket_request(method='GET', basket=basket)
     
     if not response:
-        print('Empty basket: ' + basket)
+        print(f'Empty basket: {basket}')
         return None
     
     data = json.loads(response.text)
@@ -69,9 +69,9 @@ def update_saved_codes(codes, game=None):
 if __name__ == '__main__':
     print('running as main')
 
-    print(get_basket(key='ayaya', game='some-game'))
+    print(get_basket(key='ayaya', basket='some-game'))
 
     stuff = {'stuff': 'lmao'}
-    update_basket(data=stuff, game='some-game')
+    update_basket(data=stuff, basket='some-game')
 
-    print(get_basket(game='some-game'))
+    print(get_basket(basket='some-game'))
