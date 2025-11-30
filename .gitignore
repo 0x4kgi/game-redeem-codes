@@ -1,3 +1,6 @@
+# Project specific .gitignore
+codes/
+
 # https://github.com/github/gitignore/blob/main/Python.gitignore
 # Head over to the end of the file for my own ignored files
 
